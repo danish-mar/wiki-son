@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wikipedia, the free encyclopedia</title>
+  <meta name="description" content="A Wikipedia replica built with HTML, JavaScript, and Tailwind CSS CDN for Sonali's Web Technology project. Designed for GitHub Pages.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            wikiblue: {
+              DEFAULT: '#3366cc',
+              hover: '#0645ad',
+              light: '#eaf3ff',
+              dark: '#6998f5'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Core Wikipedia Styles & Fonts -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-blue-100 selection:text-blue-900" data-theme="light">
+
+  <!-- ================= TOP HEADER ================= -->
+  <header class="sticky top-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur border-b border-gray-200 dark:border-gray-800 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Left: Mobile Menu Toggle & Brand -->
+      <div class="flex items-center gap-3">
+        <button id="sidebar-toggle-btn" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 md:hidden" aria-label="Toggle navigation menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+
+        <a href="#Web_Technology" class="flex items-center gap-2.5 group text-decoration-none">
+          <!-- Wikipedia-style globe emblem -->
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 border border-gray-300 dark:border-gray-600 flex items-center justify-center shadow-inner group-hover:border-blue-500 transition-colors">
+            <span class="wiki-brand-logo text-xl font-bold text-gray-800 dark:text-gray-100">W</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="wiki-serif-title text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100 leading-none">Wikipedia</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 font-semibold tracking-wide uppercase">Web Tech</span>
+            </div>
+            <span class="text-[10px] text-gray-500 dark:text-gray-400 block tracking-wider uppercase font-medium">The Free Encyclopedia</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Center: Search Bar with Autocomplete Dropdown -->
+      <div class="flex-1 max-w-xl relative">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input 
+            type="text" 
+            id="wiki-search-input" 
+            placeholder="Search Wikipedia... (Press '/' or Ctrl+K)" 
+            autocomplete="off"
+            class="w-full pl-9 pr-14 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-900 transition-all shadow-inner"
+          >
+          <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-gray-400 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800">/</kbd>
+          </div>
+        </div>
+
+        <!-- Live Search Autocomplete Dropdown -->
+        <div id="wiki-search-dropdown" class="hidden absolute left-0 right-0 mt-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden divide-y divide-gray-100 dark:divide-gray-800">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Right: Action Buttons & Preferences Dropdown -->
+      <div class="flex items-center gap-2">
+        <!-- New Article Modal Trigger -->
+        <button class="new-article-btn hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors" title="Create a new encyclopedia entry">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          <span>Create page</span>
+        </button>
+
+        <!-- Project Badge Link -->
+        <a href="#Web_Technology_Project" class="hidden md:inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 rounded-md hover:bg-emerald-100 transition-colors">
+          <span>Sonali's Project</span>
+        </a>
+
+        <!-- Appearance Customizer Menu -->
+        <div class="relative">
+          <button id="appearance-menu-btn" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors" title="Reading appearance & preferences">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+          </button>
+
+          <!-- Dropdown Popup -->
+          <div id="appearance-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl p-4 z-50 text-xs">
+            <div class="font-bold text-gray-900 dark:text-gray-100 mb-3 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+              <span>Reading Preferences</span>
+              <span class="text-[10px] text-gray-400 font-normal">Vector 2022</span>
+            </div>
+
+            <!-- Theme Chooser -->
+            <div class="mb-4">
+              <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1.5">Color Theme</label>
+              <div class="grid grid-cols-3 gap-1.5">
+                <button onclick="window.wikiApp.setTheme('light')" class="py-1 px-2 text-center rounded border border-gray-300 dark:border-gray-700 bg-white text-gray-900 hover:border-blue-500 font-medium">Light</button>
+                <button onclick="window.wikiApp.setTheme('sepia')" class="py-1 px-2 text-center rounded border border-[#c8bfae] bg-[#f7f3e9] text-[#2c2523] hover:border-amber-600 font-medium">Sepia</button>
+                <button onclick="window.wikiApp.setTheme('dark')" class="py-1 px-2 text-center rounded border border-gray-700 bg-gray-800 text-gray-100 hover:border-blue-400 font-medium">Dark</button>
+              </div>
+            </div>
+
+            <!-- Typography Chooser -->
+            <div class="mb-4">
+              <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1.5">Font Style</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="window.wikiApp.setFontFamily('sans')" class="py-1 px-2 rounded border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 font-sans">Sans-serif</button>
+                <button onclick="window.wikiApp.setFontFamily('serif')" class="py-1 px-2 rounded border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 font-serif">Serif</button>
+              </div>
+            </div>
+
+            <!-- Text Size -->
+            <div class="mb-4">
+              <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1.5">Text Size</label>
+              <div class="grid grid-cols-3 gap-1">
+                <button onclick="window.wikiApp.setFontSize('90')" class="py-1 px-1 text-center rounded border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800">Small</button>
+                <button onclick="window.wikiApp.setFontSize('100')" class="py-1 px-1 text-center rounded border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium">Normal</button>
+                <button onclick="window.wikiApp.setFontSize('115')" class="py-1 px-1 text-center rounded border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm">Large</button>
+              </div>
+            </div>
+
+            <!-- Content Width -->
+            <div>
+              <label class="block font-medium text-gray-700 dark:text-gray-300 mb-1.5">Page Width</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="window.wikiApp.setPageWidth('standard')" class="py-1 px-2 text-center rounded border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800">Standard</button>
+                <button onclick="window.wikiApp.setPageWidth('wide')" class="py-1 px-2 text-center rounded border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800">Wide</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= SUBHEADER / VECTOR TABS ================= -->
+  <div class="wiki-action-tabs border-b border-gray-200 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-900/60 text-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      
+      <!-- Left: Article / Discussion tabs -->
+      <div class="flex items-center space-x-1 sm:space-x-4">
+        <button onclick="window.wikiApp.switchTab('read')" data-tab="read" class="tab-btn py-2.5 px-3 font-semibold border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 flex items-center gap-1.5 transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+          <span>Article</span>
+        </button>
+        <button onclick="window.wikiApp.switchTab('talk')" data-tab="talk" class="tab-btn py-2.5 px-3 font-medium border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 flex items-center gap-1.5 transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+          <span>Talk / Discussion</span>
+        </button>
+      </div>
+
+      <!-- Right: Actions (Read, Edit, View history, Tools) -->
+      <div class="flex items-center space-x-1 sm:space-x-3 py-1">
+        <button onclick="window.wikiApp.switchTab('read')" data-tab="read" class="tab-btn py-1.5 px-2.5 font-medium border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors hidden sm:inline-block">
+          Read
+        </button>
+        <button onclick="window.wikiApp.switchTab('edit')" data-tab="edit" class="tab-btn py-1.5 px-2.5 font-medium border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 flex items-center gap-1 transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+          <span>Edit</span>
+        </button>
+        <button onclick="window.wikiApp.switchTab('history')" data-tab="history" class="tab-btn py-1.5 px-2.5 font-medium border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors">
+          View history
+        </button>
+
+        <span class="text-gray-300 dark:text-gray-700">|</span>
+
+        <!-- TTS Voice Button -->
+        <button id="article-tts-btn" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors" title="Listen to article (Text-to-speech)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+        </button>
+
+        <!-- Bookmark Star Button -->
+        <button id="article-star-btn" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors" title="Bookmark article">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+        </button>
+
+        <!-- Print Page -->
+        <button class="print-page-btn p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors" title="Print this article">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+        </button>
+
+        <!-- Copy Link -->
+        <button class="copy-link-btn p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors" title="Copy shareable link">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= MAIN BODY CONTAINER ================= -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-1 w-full flex gap-8 py-6">
+
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-30 hidden md:hidden"></div>
+
+    <!-- LEFT SIDEBAR: Navigation & Table of Contents -->
+    <aside id="wiki-sidebar" class="fixed md:static inset-y-0 left-0 w-64 bg-white dark:bg-gray-900 md:bg-transparent z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out md:block flex-shrink-0 overflow-y-auto pr-4 border-r border-gray-200 dark:border-gray-800 md:border-r-0">
+      
+      <div class="p-4 md:p-0 space-y-6">
+        
+        <!-- Navigation Section -->
+        <div>
+          <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2.5">Navigation</h3>
+          <ul class="space-y-1 text-sm">
+            <li>
+              <a href="#Web_Technology" class="sidebar-nav-link flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <span>🌐</span> Web Technology
+              </a>
+            </li>
+            <li>
+              <a href="#Hypertext_Markup_Language" class="sidebar-nav-link flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <span>📄</span> HTML (HTML5)
+              </a>
+            </li>
+            <li>
+              <a href="#Cascading_Style_Sheets" class="sidebar-nav-link flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <span>🎨</span> CSS & Tailwind
+              </a>
+            </li>
+            <li>
+              <a href="#JavaScript" class="sidebar-nav-link flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <span>⚡</span> JavaScript (ES6+)
+              </a>
+            </li>
+            <li>
+              <a href="#World_Wide_Web" class="sidebar-nav-link flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <span>🌍</span> World Wide Web
+              </a>
+            </li>
+            <li>
+              <a href="#Wikipedia" class="sidebar-nav-link flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <span>📖</span> Wikipedia Concept
+              </a>
+            </li>
+            <li>
+              <a href="#Web_Technology_Project" class="sidebar-nav-link flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-emerald-600 dark:text-emerald-400 font-medium">
+                <span>🎓</span> Sonali's Project Dossier
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Table of Contents (Sticky on Desktop) -->
+        <div class="sticky top-20 pt-2 border-t border-gray-200 dark:border-gray-800">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Contents</h3>
+            <span class="text-[10px] text-gray-400">[hide]</span>
+          </div>
+          <ul id="table-of-contents-list" class="space-y-0.5 max-h-[55vh] overflow-y-auto pr-1">
+            <!-- Dynamically populated from article sections -->
+          </ul>
+        </div>
+
+        <!-- Wiki Tools -->
+        <div class="pt-4 border-t border-gray-200 dark:border-gray-800">
+          <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Tools</h3>
+          <ul class="space-y-1 text-xs text-gray-600 dark:text-gray-400">
+            <li>
+              <button class="random-article-btn w-full text-left py-1 px-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-2">
+                <span>🎲</span> Random article
+              </button>
+            </li>
+            <li>
+              <button class="new-article-btn w-full text-left py-1 px-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-2">
+                <span>✍️</span> Create new article
+              </button>
+            </li>
+            <li>
+              <button class="print-page-btn w-full text-left py-1 px-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-2">
+                <span>🖨️</span> Printable version
+              </button>
+            </li>
+            <li>
+              <button class="copy-link-btn w-full text-left py-1 px-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-2">
+                <span>🔗</span> Permanent link
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Project Attribution Box -->
+        <div class="p-3 bg-blue-50/70 dark:bg-gray-800/60 border border-blue-200 dark:border-gray-700 rounded-lg text-xs">
+          <div class="font-bold text-blue-900 dark:text-blue-300 mb-1 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a10.99 10.99 0 00-.25 2.319c0 3.125 1.5 5.5 5 5.5s5-2.375 5-5.5a10.99 10.99 0 00-.25-2.319l2.642-1.131a1 1 0 000-1.84l-7-3zM3.31 9.397L5 8.673v.696c0 2.454 1.34 4.364 4.5 4.608v1.011c-2.434-.234-4.5-1.745-4.5-4.608v-.983zm13.38 0v.983c0 2.863-2.066 4.374-4.5 4.608v-1.011c3.16-.244 4.5-2.154 4.5-4.608v-.696l1.69.724z"/></svg>
+            <span>Web Tech Project</span>
+          </div>
+          <p class="text-gray-700 dark:text-gray-300 text-[11px] leading-relaxed mb-2">
+            Developed by <strong>Sonali</strong> as an interactive single-page Wikipedia replica.
+          </p>
+          <div class="text-[10px] text-gray-500 dark:text-gray-400 space-y-0.5">
+            <div>• HTML5 + ES6+ JavaScript</div>
+            <div>• Tailwind CSS CDN</div>
+            <div>• GitHub Pages Ready</div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- CENTER / MAIN CONTENT CONTAINER -->
+    <main id="main-article-container" class="flex-1 min-w-0 max-w-4xl mx-auto transition-all">
+
+      <!-- ================= READ VIEW (Default) ================= -->
+      <article id="read-view" class="space-y-4">
+        
+        <!-- Article Header -->
+        <header class="border-b border-gray-300 dark:border-gray-700 pb-3">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-3">
+                <h1 id="article-title" class="wiki-serif-title text-3xl sm:text-4xl font-normal text-gray-900 dark:text-gray-100 tracking-tight leading-tight">
+                  Web Technology
+                </h1>
+                <div id="article-badge-container">
+                  <!-- Injected badge -->
+                </div>
+              </div>
+              <p id="article-subtitle" class="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
+                From Wikipedia, the free encyclopedia
+              </p>
+            </div>
+          </div>
+        </header>
+
+        <!-- Project Announcement Banner -->
+        <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-200">
+          <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <strong>Web Technology Demonstration:</strong> This is a static Wikipedia application created by <strong>Sonali</strong>. You can navigate, search, inspect references, edit sections, and participate in discussion threads. All state persists in your browser's localStorage.
+          </div>
+        </div>
+
+        <!-- Rendered Article Content (Infobox + Sections + References) -->
+        <div id="article-content-body" class="wiki-content clear-both leading-relaxed text-gray-800 dark:text-gray-200">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Categories Box -->
+        <div class="mt-8 pt-4 border-t border-gray-300 dark:border-gray-700 text-xs">
+          <div class="p-2.5 bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded flex flex-wrap items-center gap-2">
+            <span class="font-bold text-gray-700 dark:text-gray-300">Categories:</span>
+            <div id="article-categories-list" class="flex flex-wrap items-center gap-1.5">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+      </article>
+
+      <!-- ================= EDIT VIEW (Tab) ================= -->
+      <section id="edit-view" class="hidden space-y-4">
+        <div class="border-b border-gray-300 dark:border-gray-700 pb-3">
+          <h2 class="wiki-serif-title text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Editing Article
+          </h2>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            Make changes to content, sections, or subtitles. Changes are stored locally in your browser.
+          </p>
+        </div>
+
+        <form id="edit-article-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Article Title (Read-only)</label>
+            <input type="text" id="edit-title-input" readonly class="w-full px-3 py-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded text-sm text-gray-600 dark:text-gray-400">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Subtitle / Tagline</label>
+            <input type="text" id="edit-subtitle-input" class="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+
+          <!-- Quick formatting toolbar -->
+          <div class="flex flex-wrap items-center gap-1.5 p-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-t text-xs">
+            <button type="button" onclick="insertSyntax('== ', ' ==', 'Section Title')" class="px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded font-bold hover:bg-gray-50">H2</button>
+            <button type="button" onclick="insertSyntax('=== ', ' ===', 'Sub-section Title')" class="px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded font-bold hover:bg-gray-50">H3</button>
+            <button type="button" onclick="insertSyntax('**', '**', 'bold text')" class="px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded font-bold hover:bg-gray-50">B</button>
+            <button type="button" onclick="insertSyntax('<em>', '</em>', 'italic text')" class="px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded italic hover:bg-gray-50">I</button>
+            <button type="button" onclick="insertSyntax('<a class=\'wiki-link\' href=\'#\'>', '</a>', 'Link Text')" class="px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-blue-600 dark:text-blue-400 hover:bg-gray-50">WikiLink</button>
+            <span class="text-gray-400 text-xs ml-auto">Syntax: == Section Title ==</span>
+          </div>
+
+          <div>
+            <textarea id="edit-content-textarea" rows="16" class="w-full p-3 font-mono text-xs bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-b focus:ring-2 focus:ring-blue-500 focus:outline-none leading-relaxed text-gray-900 dark:text-gray-100"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Edit Summary (Briefly describe your changes)</label>
+            <input type="text" id="edit-summary-input" placeholder="e.g., Fixed typo, expanded section on CSS, added reference" class="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+
+          <div class="flex items-center gap-3 pt-2">
+            <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs rounded transition-colors shadow">
+              Save changes
+            </button>
+            <button type="button" id="cancel-edit-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium text-xs rounded transition-colors">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ================= TALK / DISCUSSION VIEW (Tab) ================= -->
+      <section id="talk-view" class="hidden space-y-6">
+        <div class="border-b border-gray-300 dark:border-gray-700 pb-3">
+          <h2 class="wiki-serif-title text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Discussion / Talk Page
+          </h2>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            Collaborative discussions and editorial peer reviews regarding this article.
+          </p>
+        </div>
+
+        <!-- List of discussion threads -->
+        <div id="talk-comments-list" class="space-y-4">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Add discussion comment -->
+        <div class="p-4 bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <h3 class="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-1.5">
+            <span>💬</span> Add a new topic to this talk page
+          </h3>
+          <form id="talk-form" class="space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Your Name / Handle</label>
+                <input type="text" id="talk-user-input" placeholder="e.g. Sonali or Evaluator" class="w-full px-3 py-1.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded text-xs text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-blue-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Subject / Topic Header</label>
+                <input type="text" id="talk-topic-input" placeholder="e.g. Question on Client-side Routing" class="w-full px-3 py-1.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded text-xs text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-blue-500 focus:outline-none">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Message</label>
+              <textarea id="talk-comment-input" rows="3" required placeholder="Type your comment, query, or feedback here..." class="w-full p-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded text-xs text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-blue-500 focus:outline-none"></textarea>
+            </div>
+            <button type="submit" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs rounded transition-colors">
+              Post comment
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ================= HISTORY VIEW (Tab) ================= -->
+      <section id="history-view" class="hidden space-y-4">
+        <div class="border-b border-gray-300 dark:border-gray-700 pb-3">
+          <h2 class="wiki-serif-title text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Revision History
+          </h2>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            Chronological audit log of edits made to this article by Sonali and contributors.
+          </p>
+        </div>
+
+        <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+          <table class="w-full text-left">
+            <thead class="bg-gray-50 dark:bg-gray-800 text-xs font-semibold text-gray-600 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+              <tr>
+                <th class="p-3">Timestamp</th>
+                <th class="p-3">Contributor</th>
+                <th class="p-3">Edit Summary</th>
+                <th class="p-3 text-right">Differential</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body" class="divide-y divide-gray-100 dark:divide-gray-800">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="mt-auto border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 text-xs text-gray-500 dark:text-gray-400 py-8 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center font-serif font-bold text-gray-700 dark:text-gray-300">
+            W
+          </div>
+          <div>
+            <div class="font-semibold text-gray-800 dark:text-gray-200">Wikipedia — Web Technology Project</div>
+            <div class="text-[11px]">Designed and developed by <strong>Sonali</strong> • Built with HTML, JavaScript, and Tailwind CSS</div>
+          </div>
+        </div>
+
+        <!-- Footer interactive controls -->
+        <div id="footer-interactive" class="flex items-center gap-4 text-xs">
+          <button id="reset-wiki-data-btn" class="hover:text-red-500 underline transition-colors" title="Reset all changes back to Sonali's original project data">
+            Reset to default data
+          </button>
+          <span>•</span>
+          <a href="#Web_Technology_Project" class="hover:underline text-blue-600 dark:text-blue-400">
+            Project Dossier
+          </a>
+          <span>•</span>
+          <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;" class="hover:underline">
+            Back to top ↑
+          </a>
+        </div>
+      </div>
+
+      <div class="text-[11px] border-t border-gray-200 dark:border-gray-800 pt-4 text-gray-400 flex flex-col sm:flex-row justify-between gap-2">
+        <p>Text is available under the Creative Commons Attribution-ShareAlike License 4.0; additional terms may apply. 100% static client-side for GitHub Pages deployment.</p>
+        <p class="text-right">Project Subject: Web Technology</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= NEW ARTICLE MODAL ================= -->
+  <div id="new-article-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden p-4">
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl max-w-lg w-full p-6 text-gray-900 dark:text-gray-100">
+      <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-3 mb-4">
+        <h3 class="text-lg font-bold">Create New Encyclopedia Article</h3>
+        <button onclick="window.wikiApp.closeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg leading-none">&times;</button>
+      </div>
+      
+      <form id="new-article-modal-form" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold mb-1">Article Title *</label>
+          <input type="text" id="new-modal-title" required placeholder="e.g. Responsive Web Design" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1">Lead Paragraph / Summary</label>
+          <textarea id="new-modal-summary" rows="3" placeholder="A brief encyclopedic definition and introductory paragraph..." class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1">Categories (comma-separated)</label>
+          <input type="text" id="new-modal-category" placeholder="Web technology, Design, Sonali's Projects" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+        
+        <div class="flex justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-800">
+          <button type="button" onclick="window.wikiApp.closeModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 text-xs rounded font-medium">
+            Cancel
+          </button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded font-medium">
+            Create page
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Helper for Editor syntax toolbar -->
+  <script>
+    function insertSyntax(before, after, defaultText) {
+      const textarea = document.getElementById('edit-content-textarea');
+      if (!textarea) return;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const selected = textarea.value.substring(start, end) || defaultText;
+      const replacement = before + selected + after;
+      textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
+      textarea.focus();
+      textarea.selectionStart = start + before.length;
+      textarea.selectionEnd = start + before.length + selected.length;
+    }
+  </script>
+
+  <!-- Application Scripts -->
+  <script src="articles.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
