@@ -1,4 +1,4 @@
-# Wikipedia — Web Technology Project (Sonali)
+# Wikipedia — Web Technology Project (WTL)
 
 An authentic, responsive Wikipedia replica built with pure HTML5, vanilla JavaScript (ES6+), and Tailwind CSS (CDN).
 
@@ -22,7 +22,7 @@ Designed specifically for **GitHub Pages** (100% static client-side, zero build 
    ```bash
    git init
    git add .
-   git commit -m "Sonali's Web Technology Wikipedia Project"
+   git commit -m "WTL Web Technology Wikipedia Project"
    git branch -M main
    git remote add origin https://github.com/<your-username>/<repo-name>.git
    git push -u origin main
